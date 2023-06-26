@@ -1,5 +1,5 @@
 import { useAudioContext } from "../AudioContextProvider";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type useCoreAnalysisReturn = AnalyserNode | null;
 
@@ -7,6 +7,7 @@ export const useCoreAnalysis = (): useCoreAnalysisReturn => {
   const { audioContext, source } = useAudioContext();
   const [analyserCore, setAnalyserCore] = useState<AnalyserNode | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   const init = useCallback(async () => {
     if (!audioContext || !source) return;
 
@@ -16,7 +17,7 @@ export const useCoreAnalysis = (): useCoreAnalysisReturn => {
   }, [audioContext, source]);
 
   useEffect(() => {
-    if(!analyserCore) {
+    if (!analyserCore) {
       void init();
     }
 

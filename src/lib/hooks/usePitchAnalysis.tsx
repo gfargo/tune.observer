@@ -1,8 +1,6 @@
 import { useCallback, useState } from "react";
 import { useThrottleFn, useUnmount } from "ahooks";
-import PitchAnalyser from "pitch-analyser";
-
-import { useAudioContext } from "../AudioContextProvider";
+import PitchAnalyser, { type PitchAnalyserOptions } from "pitch-analyser";
 
 type PitchAnalyserPayload = {
   frequency: number;
@@ -24,7 +22,6 @@ type UsePitchAnalysisOutput = {
 export const usePitchAnalysis = (
   { throttle }: UsePitchAnalysisProps = { throttle: 750 }
 ): UsePitchAnalysisOutput => {
-  const { stream } = useAudioContext();
   const [analyserPitch, setAnalyserPitch] = useState<PitchAnalyser | null>(
     null
   );
@@ -48,7 +45,7 @@ export const usePitchAnalysis = (
   const startPitchAnalysis = async () => {
     if (!active && !analyserPitch) {
       const analyserPitch = new PitchAnalyser({
-        callback: throttledCallback,
+        callback: throttledCallback as PitchAnalyserOptions["callback"],
       });
 
       await analyserPitch.initAnalyser(() => {

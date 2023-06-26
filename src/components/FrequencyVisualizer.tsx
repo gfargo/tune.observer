@@ -15,13 +15,13 @@ export const FrequencyVisualizer: React.FC = () => {
 
     if (!ctx) return;
 
-    const draw = (dataParm: any) => {
-      dataParm = [...dataParm];
+    const draw = (dataParm: Uint8Array) => {
+      const input = [...dataParm]
       ctx.fillStyle = "white"; //white background
       ctx.lineWidth = 2; //width of candle/bar
       ctx.strokeStyle = "hsl(280,100%,70%)"; //color of candle/bar
       const space = canvas.width / dataParm.length;
-      dataParm.forEach((value: number, i: number) => {
+      input.forEach((value: number, i: number) => {
         ctx.beginPath();
         ctx.moveTo(space * i, canvas.height); //x,y
         ctx.lineTo(space * i, canvas.height - value); //x,y
@@ -32,6 +32,7 @@ export const FrequencyVisualizer: React.FC = () => {
     const loopingFunction = () => {
       requestAnimationFrame(loopingFunction);
       if (analyserCore === null) return;
+
       analyserCore.getByteFrequencyData(data);
       ctx.clearRect(0, 0, canvas.width || 0, canvas.height || 0);
 

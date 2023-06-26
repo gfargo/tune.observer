@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BoltIcon,
   MusicalNoteIcon,
@@ -38,13 +38,14 @@ const TuneObserverWithAudioContext: React.FC = () => {
     }
   };
 
-  console.log({ bpm, pitch, note, active });
+  // console.log({ bpm, pitch, note, active });
 
   return (
     <>
       {active && <FrequencyVisualizer />}
 
       <Button
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onClick={toggleListening}
         variant={active ? "destructive" : "default"}
         size={"icon"}

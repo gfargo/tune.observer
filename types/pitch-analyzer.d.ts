@@ -30,5 +30,6 @@ declare module 'pitch-analyser' {
     stopAnalyser(callback?: () => void): void;
   }
 
+  export { PitchAnalyserOptions, PitchAnalyserReturnValue };
   export default PitchAnalyser;
 }
