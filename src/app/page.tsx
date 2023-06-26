@@ -1,7 +1,6 @@
 import React from "react";
 
-import { MicrophoneIcon } from "@heroicons/react/24/outline";
-import AudioAnalyzer from "~/components/AudioAnalyzer/AudioAnalyzer";
+import TuneObserver from "@/components/TuneObserver";
 
 const Home: React.FC = () => {
   return (
@@ -13,11 +12,7 @@ const Home: React.FC = () => {
           </h1>
 
           <div className="flex flex-col items-center justify-center gap-4">
-            {/* <button className="w-full max-w-[20rem] rounded-lg bg-[hsl(280,100%,70%)] px-4 py-2 text-lg font-semibold uppercase tracking-wider text-white shadow-md hover:bg-[hsl(280,100%,60%)] flex flex-row items-center">
-              Listen
-              <MicrophoneIcon className="h-6 w-6 ml-2" />
-            </button> */}
-            <AudioAnalyzer />
+            <TuneObserver />
           </div>
         </div>
       </main>

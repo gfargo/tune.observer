@@ -6,14 +6,18 @@ import {
   createRealTimeBpmProcessor,
   getBiquadFilters,
 } from "realtime-bpm-analyzer";
+import PitchAnalyser from "pitch-analyser";
 import type { RealTimeBpmAnalyzer } from "realtime-bpm-analyzer";
+import { set } from "zod";
+import { Button } from "../ui/button";
 
 type AudioContextState = {
   audioContext: AudioContext | null;
   stream: MediaStream | null;
   source: MediaStreamAudioSourceNode | null;
-  analyzerCore: AnalyserNode | null;
-  analyzerBpm: AudioWorkletNode | null;
+  analyserCore: AnalyserNode | null;
+  analyserBpm: AudioWorkletNode | null;
+  analyserPitch: PitchAnalyser | null;
 };
 
 const AudioAnalyzer = () => {
@@ -27,79 +31,97 @@ const AudioAnalyzer = () => {
     audioContext: null,
     source: null,
     stream: null,
-    analyzerBpm: null,
-    analyzerCore: null,
+    analyserBpm: null,
+    analyserCore: null,
+    analyserPitch: null,
   });
 
   // Waveform Canvas Ref
-  const analyserCanvas: any = useRef(null);
+  const analyserCanvas = useRef<HTMLCanvasElement>(null);
+  // const audioSourceRef = useRef<HTMLAudioElement>(null);
 
   const startAnalysis = async () => {
-    if (!context?.audioContext) {
-      await getAudioContext();
+    let audioContextState = context;
+    if (!audioContextState?.audioContext) {
+      audioContextState = await getAudioContext();
+      console.log("audioContextState", audioContextState);
     }
 
-    if (!context?.analyzerCore || !context?.analyzerBpm) {
-      await getAudioAnalyser();
+    if (!audioContextState?.analyserCore || !audioContextState?.analyserBpm) {
+      audioContextState = await getAudioAnalyser(audioContextState);
     }
 
     setIsAnalyzing(true);
   };
 
-  const getAudioContext = async () => {
+  const getAudioContext = async (): Promise<AudioContextState> => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
-      setAudioContext({
+
+      const newState = {
         ...context,
         audioContext,
         stream,
         source,
-      });
+      };
+      setAudioContext(newState);
+      return newState;
     } catch (err) {
       console.log(err);
     }
   };
 
-  const getAudioAnalyser = async () => {
-    if (!context?.analyzerCore || !context?.analyzerBpm) {
-      if (
-        context.audioContext &&
-        context.source &&
-        context.stream &&
-        !context.analyzerBpm &&
-        !context.analyzerCore
-      ) {
-        const analyzerCore = context.audioContext.createAnalyser();
+  const getAudioAnalyser = async (
+    audioContextState: AudioContextState
+  ): Promise<AudioContextState> => {
+    if (
+      audioContextState.audioContext &&
+      audioContextState.source &&
+      audioContextState.stream &&
+      !audioContextState.analyserBpm &&
+      !audioContextState.analyserCore
+    ) {
+      const analyserCore = audioContextState.audioContext.createAnalyser();
 
-        const analyzerBpm = await createRealTimeBpmProcessor(
-          context.audioContext
-        );
+      const analyserBpm = await createRealTimeBpmProcessor(
+        audioContextState.audioContext
+      );
 
-        setAudioContext({
-          ...context,
-          analyzerBpm,
-          analyzerCore,
-        });
-      }
+      const analyserPitch = new PitchAnalyser({
+        callback({ frequency, note }) {
+          console.log({ frequency, note });
+        },
+      });
+
+      const newState = {
+        ...audioContextState,
+        analyserBpm,
+        analyserCore,
+        analyserPitch,
+      };
+      setAudioContext(newState);
+      return newState;
     }
   };
 
-  useAsyncEffect(getAudioAnalyser, [context]);
+  // useAsyncEffect(getAudioAnalyser, [context.audioContext, context.source]);
 
   //
   // Setup Core Analyzer
   //
   useEffect(() => {
-    if (context.analyzerCore && context.source && context.audioContext) {
-      context.analyzerCore.fftSize = 2048;
-      context.source.connect(context.analyzerCore);
-      const data = new Uint8Array(context.analyzerCore.frequencyBinCount);
+    if (context.analyserCore && context.source && context.audioContext) {
+      console.log("Setting up Core Analyzer");
+      context.source.connect(context.analyserCore);
+      const data = new Uint8Array(context.analyserCore.frequencyBinCount);
 
-      // Do stuff...
+      if (!analyserCanvas.current) return;
 
       const ctx = analyserCanvas.current.getContext("2d");
+
+      if (!ctx) return;
 
       const draw = (dataParm: any) => {
         dataParm = [...dataParm];
@@ -117,97 +139,165 @@ const AudioAnalyzer = () => {
 
       const loopingFunction = () => {
         requestAnimationFrame(loopingFunction);
-        if (context.analyzerCore === null) return;
-        context.analyzerCore.getByteFrequencyData(data);
+        if (context.analyserCore === null) return;
+        context.analyserCore.getByteFrequencyData(data);
         ctx.clearRect(
           0,
           0,
-          analyserCanvas.current.width,
-          analyserCanvas.current.height
+          analyserCanvas?.current?.width || 0,
+          analyserCanvas?.current?.height || 0
         );
+
         draw(data);
       };
 
-      /* "requestAnimationFrame" requests the browser to execute the code during the next repaint cycle. This allows the system to optimize resources and frame-rate to reduce unnecessary reflow/repaint calls. */
-      requestAnimationFrame(loopingFunction);
+      if (isAnalyzing) {
+        requestAnimationFrame(loopingFunction);
+      }
     }
-  }, [context.analyzerCore]);
+  }, [context.analyserCore, context.source, context.audioContext]);
 
   //
   // Setup BPM Analyzer
   //
-  useEffect(() => {
-    if (context.analyzerBpm && context.source && context.audioContext) {
+  useAsyncEffect(async () => {
+    if (
+      context.source &&
+      context.audioContext &&
+      context.analyserCore &&
+      context.analyserBpm &&
+      context.analyserPitch
+    ) {
+      console.log("Setting up BPM Analyzer");
+
       // The library provides built in biquad filters, so no need to configure them
       const { lowpass, highpass } = getBiquadFilters(context.audioContext);
 
+      // lowpass.gain.value = 3;
+      // lowpass.type = "lowpass";
+      // lowpass.frequency.value = 1000;
+
       // Connect nodes together
+      context.source.connect(context.analyserCore);
       context.source
         .connect(lowpass)
         .connect(highpass)
-        .connect(context.analyzerBpm);
+        .connect(context.analyserBpm);
 
-      context.source.connect(context.audioContext.destination);
+      // context.source.connect(lowpass);
+      // lowpass.connect(highpass);
+      // highpass.connect(context.analyserBpm);
 
-      context.analyzerBpm.port.onmessage = (event) => {
-        if (isAnalyzing) {
-          if (event.data.message === "BPM") {
+      // context.source.connect(context.audioContext.destination);
+
+      context.analyserBpm.port.postMessage({
+        message: "ASYNC_CONFIGURATION",
+        parameters: {
+          continuousAnalysis: true,
+          // stabilizationTime: 20_000, // Default value is 20_000ms after what the library will automatically delete all collected data and restart analysing BPM
+        },
+      });
+
+      context.analyserBpm.port.onmessage = (event) => {
+        if (event.data.message === "BPM") {
+          if (event.data.result.bpm.length > 0) {
             console.log("BPM", event.data.result);
-            setBpm(event.data.result.bpm);
-            setKeys(event.data.result.keys);
-          }
-
-          if (event.data.message === "BPM_STABLE") {
-            console.log("BPM_STABLE", event.data.result);
-          }
-
-          if (
-            event.data.message !== "BPM" ||
-            event.data.message !== "BPM_STABLE"
-          ) {
-            console.log("Other Event:", event.data.message);
+            setBpm(event.data.result.bpm[0].tempo);
           }
         }
+
+        if (event.data.message === "BPM_STABLE") {
+          console.log("BPM_STABLE", event.data.result);
+        }
+
+        if (
+          event.data.message !== "BPM" &&
+          event.data.message !== "BPM_STABLE"
+        ) {
+          console.log("Other Event:", event.data);
+        }
       };
+
+      await context.analyserPitch.initAnalyser(() => {
+        console.log("Pitch analyzer initialized");
+      });
+
+      context.analyserPitch.startAnalyser(() => {
+        console.log("Pitch analyzer started");
+      });
 
       // Unsubscribe from the analyzer
       return () => {
         stopAnalysis();
       };
     }
-  }, [context.analyzerBpm]);
+  }, [context.source, context.audioContext, context.analyserCore]);
 
   const stopAnalysis = () => {
     setIsAnalyzing(false);
-    if (context.analyzerBpm) {
-      context.analyzerBpm.disconnect();
-      context.analyzerBpm.port.close();
+    setBpm(0);
+    setKeys([]);
+
+    if (context.analyserBpm) {
+      context.analyserBpm.disconnect();
+      context.analyserBpm.port.close();
     }
-    if (context.analyzerCore) {
-      context.analyzerCore.disconnect();
+
+    if (context.analyserCore) {
+      context.analyserCore.disconnect();
     }
+
+    if (context.source) {
+      context.source.disconnect();
+    }
+
+    if (context.stream) {
+      context.stream.getTracks().forEach((track) => track.stop());
+    }
+
+    if (context.analyserPitch) {
+      context.analyserPitch.stopAnalyser(() => {
+        console.log("Pitch analyzer stopped");
+      });
+    }
+
+    setAudioContext({
+      audioContext: null,
+      source: null,
+      stream: null,
+      analyserBpm: null,
+      analyserCore: null,
+      analyserPitch: null,
+    });
   };
 
   return (
     // transparent tailwind background
     <>
-      <button
-        onClick={isAnalyzing ? stopAnalysis : startAnalysis}
-        className="flex max-w-[20rem] flex-row items-center rounded-lg bg-[hsl(280,100%,70%)] px-4 py-2 text-lg font-semibold uppercase tracking-wider text-white shadow-md hover:bg-[hsl(280,100%,60%)]"
-      >
+      <Button onClick={isAnalyzing ? stopAnalysis : startAnalysis}>
         {isAnalyzing ? "Stop" : "Start"} Listening
-      </button>
+      </Button>
 
       <div className="flex h-full w-full flex-col items-center justify-center rounded-lg bg-[hsla(0,0%,100%,0.5)] p-4 shadow-md backdrop-blur-md backdrop-saturate-150 backdrop-filter">
-        {/* <audio id="track"></audio> */}
+        {/* <audio
+          src="https://ssl1.viastreaming.net:7005/;listen.mp3"
+          ref={audioSourceRef}
+          id="track"
+        ></audio> */}
 
         {isAnalyzing && (
           <div>
             <p>BPM: {bpm}</p>
-            <p>Keys: {keys && keys.length && keys.join(", ")}</p>
+            <p>
+              Keys:{" "}
+              {keys &&
+                keys.length &&
+                keys.every((key) => !!key) &&
+                keys.join(", ")}
+            </p>
           </div>
         )}
-        
+
         <canvas ref={analyserCanvas} className="w-full" />
       </div>
     </>

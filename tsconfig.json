@@ -22,7 +22,7 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
+      "@/*": [
         "./src/*"
       ]
     },
@@ -34,7 +34,8 @@
   },
   "include": [
     ".eslintrc.cjs",
-    "next-env.d.ts",
+    "types/next-env.d.ts",
+    "types/pitch-analyzer.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.cjs",
