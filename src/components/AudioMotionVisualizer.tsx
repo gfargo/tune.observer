@@ -1,18 +1,17 @@
 import { useAudioContext } from "@/lib/AudioContextProvider";
-import { useMount } from "ahooks";
 import AudioMotionAnalyzer from "audiomotion-analyzer";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { set } from "zod";
 
-export const AudioMotionVisualizer: React.FC = ({ children }) => {
-  const container = useRef<HTMLDivElement | undefined>(undefined);
+export const AudioMotionVisualizer: React.FC = () => {
+  const container = useRef<HTMLDivElement | null>(null);
   const { source, audioContext } = useAudioContext();
   const [audioMotion, setAudioMotion] = useState<AudioMotionAnalyzer | null>(
     null
   );
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   const init = useCallback(async () => {
-    if (!audioContext || !source || audioMotion) return;
+    if (!container.current || !audioContext || !source || audioMotion) return;
 
     const audioMotionAnalyzer = new AudioMotionAnalyzer(container.current, {
       audioCtx: audioContext,
@@ -48,9 +47,7 @@ export const AudioMotionVisualizer: React.FC = ({ children }) => {
   }, [source, audioContext, init, audioMotion]);
 
   return (
-    <div ref={container} className="absolute inset-0 z-0 h-screen w-screen">
-      {children}
-    </div>
+    <div ref={container} className="absolute inset-0 z-0 h-screen w-screen" />
   );
 };
 
