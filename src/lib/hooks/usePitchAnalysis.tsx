@@ -20,7 +20,7 @@ type UsePitchAnalysisOutput = {
 };
 
 export const usePitchAnalysis = (
-  { throttle }: UsePitchAnalysisProps = { throttle: 750 }
+  { throttle }: UsePitchAnalysisProps = { throttle: 500 }
 ): UsePitchAnalysisOutput => {
   const [analyserPitch, setAnalyserPitch] = useState<PitchAnalyser | null>(
     null
@@ -34,10 +34,16 @@ export const usePitchAnalysis = (
     run: throttledCallback,
     cancel: cancelThrottledCallback,
   } = useThrottleFn(
-    ({ frequency, note }: PitchAnalyserPayload) => {
+    ({ frequency, note: newNote }: PitchAnalyserPayload) => {
       if (!active) return;
-      setPitch(frequency);
-      setNote(note);
+      
+      if (pitch !== frequency) {
+        setPitch(frequency);
+      }
+
+      if (newNote !== note) {
+        setNote(newNote);
+      }
     },
     { wait: throttle }
   );

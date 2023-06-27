@@ -15,6 +15,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.4",
     "ahooks": "^3.7.7",
+    "audiomotion-analyzer": "^4.0.0",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
     "next": "^13.4.6",
