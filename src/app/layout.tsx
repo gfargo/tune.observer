@@ -1,6 +1,7 @@
 import "server-only";
 import React from "react";
 import "@/app/globals.css";
+import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from "@/components/ui/toaster";
 
 // do not cache this layout
@@ -14,14 +15,11 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/*
-        <head /> will contain the components returned by the nearest parent
-        head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-      */}
       <head></head>
       <body>
-        <main>{children}</main>
-        <Toaster />
+        {children}
+        {/* <Toaster /> */}
+        <Analytics />
       </body>
     </html>
   );
