@@ -1,7 +1,9 @@
 import React from "react";
 
 import TuneObserver from "@/components/TuneObserver";
+import GithubCorner from 'react-github-corner';
 import { type Metadata } from "next";
+import { Credits } from "@/components/Credits";
 
 export const metadata: Metadata = {
   title: "Tune.observer",
@@ -18,6 +20,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </main>
+      <Credits />
     </>
   );
 };

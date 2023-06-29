@@ -47,16 +47,16 @@ export const AudioContextProvider: React.FC<AudioContextProviderProps> = ({
 
   const reset = useCallback(
     async (beforeResetCallback: () => Promise<void>) => {
+      if (beforeResetCallback) {
+        await beforeResetCallback();
+      }
+
       if (source) {
         source.disconnect();
       }
 
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
-      }
-
-      if (beforeResetCallback) {
-        await beforeResetCallback();
       }
 
       if (audioContext) {
