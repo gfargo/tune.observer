@@ -1,10 +1,10 @@
 # Tune.Observer
 
-![GitHub stars](https://img.shields.io/github/stars/gfargo/tune.observer?style=social)
-![GitHub forks](https://img.shields.io/github/forks/gfargo/tune.observer?style=social)
-![GitHub issues](https://img.shields.io/github/issues/gfargo/tune.observer)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/gfargo/tune.observer)
-![Twitter Follow](https://img.shields.io/twitter/follow/ghfargo?style=social)
+[![GitHub stars](https://img.shields.io/github/stars/gfargo/tune.observer?style=social)](https://github.com/GFargo/tune.observer/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/gfargo/tune.observer?style=social)](https://github.com/GFargo/tune.observer/forks)
+[![GitHub issues](https://img.shields.io/github/issues/gfargo/tune.observer)](https://github.com/GFargo/tune.observer/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/gfargo/tune.observer)](https://github.com/GFargo/tune.observer/pulls)
+[![Twitter Follow](https://img.shields.io/twitter/follow/ghfargo?style=social)](https://twitter.com/ghfargo)
 
 ## Overview
 
