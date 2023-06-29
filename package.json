@@ -1,5 +1,6 @@
 {
   "name": "tune.observer",
+  "description": "Tune Observer is a tool for musicians to help them understand the music they are playing/listening to by identifying the key, the chords and the tempo of the song.",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -19,7 +20,7 @@
     "audiomotion-analyzer": "^4.0.0",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
-    "next": "^13.4.6",
+    "next": "^13.4.7",
     "pitch-analyser": "^1.1.0",
     "react": "18.2.0",
     "react-circle-of-fifths": "^1.0.2",

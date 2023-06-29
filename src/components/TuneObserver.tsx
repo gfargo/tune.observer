@@ -19,7 +19,7 @@ import { Note } from "tonal";
 import { Card, CardTitle } from "./ui/card";
 import { ClockIcon } from "@radix-ui/react-icons";
 import AudioMotionVisualizer from "./AudioMotionVisualizer";
-import { useWhyDidYouUpdate } from "ahooks";
+// import { useWhyDidYouUpdate } from "ahooks";
 
 const TuneObserverWithAudioContext: React.FC = () => {
   const { init, reset, active } = useAudioContext();
@@ -45,8 +45,6 @@ const TuneObserverWithAudioContext: React.FC = () => {
   //   note,
   //   active,
   // });
-
-  // console.log('Rendering "TuneObserverWithAudioContext"', { bpm, pitch, note, active });
 
   return (
     <>

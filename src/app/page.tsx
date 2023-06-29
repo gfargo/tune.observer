@@ -7,7 +7,7 @@ import { Credits } from "@/components/Credits";
 
 export const metadata: Metadata = {
   title: "Tune.observer",
-  description: "Tool to help identify the notes, pitch, and BPM of a song.",
+  description: "Identify the notes, pitch, and BPM via your microphone",
 };
 
 const Home: React.FC = () => {
