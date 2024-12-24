@@ -1,9 +1,8 @@
 import React from "react";
 
-import TuneObserver from "@/components/TuneObserver";
-import GithubCorner from 'react-github-corner';
-import { type Metadata } from "next";
 import { Credits } from "@/components/Credits";
+import TuneObserver from "@/components/TuneObserver";
+import { type Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Tune.observer",
