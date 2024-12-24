@@ -67,7 +67,7 @@ const TuneObserverWithAudioContext: React.FC = () => {
       </div>
 
       <div className="absolute bottom-8">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] mb-2">
+        <h1 className="mb-2 text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
           Tune.<span className="text-[hsl(280,100%,70%)]">observer</span>
         </h1>
         <Card className="p-3">

@@ -1,8 +1,8 @@
 import "server-only";
 import React from "react";
 import "@/app/globals.css";
-import { Analytics } from '@vercel/analytics/react';
-import { Toaster } from "@/components/ui/toaster";
+import { Analytics } from "@vercel/analytics/react";
+// import { Toaster } from "@/components/ui/toaster";
 
 // do not cache this layout
 export const revalidate = 0;
